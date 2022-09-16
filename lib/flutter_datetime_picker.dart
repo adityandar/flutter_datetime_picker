@@ -322,6 +322,7 @@ class _DatePickerState extends State<_DatePickerComponent> {
                 widget.route.animation!.value,
                 theme,
                 showTitleActions: widget.route.showTitleActions!,
+                showBottomWidget: widget.bottomWidgetBuilder != null,
                 bottomPadding: bottomPadding,
               ),
               child: GestureDetector(
@@ -563,12 +564,14 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
     this.theme, {
     this.itemCount,
     this.showTitleActions,
+    this.showBottomWidget,
     this.bottomPadding = 0,
   });
 
   final double progress;
   final int? itemCount;
   final bool? showTitleActions;
+  final bool? showBottomWidget;
   final DatePickerTheme theme;
   final double bottomPadding;
 
@@ -577,6 +580,9 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
     double maxHeight = theme.containerHeight;
     if (showTitleActions == true) {
       maxHeight += theme.titleHeight;
+    }
+    if (showBottomWidget == true) {
+      maxHeight += theme.bottomWidgetHeight;
     }
 
     return BoxConstraints(
