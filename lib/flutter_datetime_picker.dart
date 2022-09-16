@@ -355,7 +355,13 @@ class _DatePickerState extends State<_DatePickerComponent> {
         ],
       );
     }
-    return itemView;
+
+    return Column(
+      children: <Widget>[
+        itemView,
+        _renderBottomWidget(),
+      ],
+    );
   }
 
   Widget _renderColumnView(
