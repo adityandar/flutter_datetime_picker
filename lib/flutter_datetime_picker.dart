@@ -1,15 +1,16 @@
 library flutter_datetime_picker;
 
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 import 'package:flutter_datetime_picker/src/date_model.dart';
+import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 import 'package:flutter_datetime_picker/src/i18n_model.dart';
 
-export 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 export 'package:flutter_datetime_picker/src/date_model.dart';
+export 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 export 'package:flutter_datetime_picker/src/i18n_model.dart';
 
 typedef DateChangedCallback(DateTime time);
@@ -31,6 +32,7 @@ class DatePicker {
     locale: LocaleType.en,
     DateTime? currentTime,
     DatePickerTheme? theme,
+    Widget Function(DateTime? selectedDate)? bottomWidgetBuilder,
   }) async {
     return await Navigator.push(
       context,
@@ -49,6 +51,7 @@ class DatePicker {
           minTime: minTime,
           locale: locale,
         ),
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
   }
@@ -66,6 +69,7 @@ class DatePicker {
     locale: LocaleType.en,
     DateTime? currentTime,
     DatePickerTheme? theme,
+    Widget Function(DateTime? selectedTime)? bottomWidgetBuilder,
   }) async {
     return await Navigator.push(
       context,
@@ -83,6 +87,7 @@ class DatePicker {
           locale: locale,
           showSecondsColumn: showSecondsColumn,
         ),
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
   }
@@ -99,6 +104,7 @@ class DatePicker {
     locale: LocaleType.en,
     DateTime? currentTime,
     DatePickerTheme? theme,
+    Widget Function(DateTime? selectedTime)? bottomWidgetBuilder,
   }) async {
     return await Navigator.push(
       context,
@@ -115,6 +121,7 @@ class DatePicker {
           currentTime: currentTime,
           locale: locale,
         ),
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
   }
@@ -133,6 +140,7 @@ class DatePicker {
     locale: LocaleType.en,
     DateTime? currentTime,
     DatePickerTheme? theme,
+    Widget Function(DateTime? selectedDateTime)? bottomWidgetBuilder,
   }) async {
     return await Navigator.push(
       context,
@@ -151,6 +159,7 @@ class DatePicker {
           maxTime: maxTime,
           locale: locale,
         ),
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
   }
@@ -167,6 +176,7 @@ class DatePicker {
     locale: LocaleType.en,
     BasePickerModel? pickerModel,
     DatePickerTheme? theme,
+    Widget Function(DateTime? selectedDateTime)? bottomWidgetBuilder,
   }) async {
     return await Navigator.push(
       context,
@@ -180,6 +190,7 @@ class DatePicker {
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
         pickerModel: pickerModel,
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
   }
@@ -196,6 +207,7 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
     this.locale,
     RouteSettings? settings,
     BasePickerModel? pickerModel,
+    this.bottomWidgetBuilder,
   })  : this.pickerModel = pickerModel ?? DatePickerModel(),
         this.theme = theme ?? DatePickerTheme(),
         super(settings: settings);
@@ -207,6 +219,7 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
   final LocaleType? locale;
   final DatePickerTheme theme;
   final BasePickerModel pickerModel;
+  final Widget Function(DateTime?)? bottomWidgetBuilder;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 200);
@@ -241,6 +254,7 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
         locale: this.locale,
         route: this,
         pickerModel: pickerModel,
+        bottomWidgetBuilder: bottomWidgetBuilder,
       ),
     );
     return InheritedTheme.captureAll(context, bottomSheet);
@@ -254,6 +268,7 @@ class _DatePickerComponent extends StatefulWidget {
     required this.pickerModel,
     this.onChanged,
     this.locale,
+    this.bottomWidgetBuilder,
   }) : super(key: key);
 
   final DateChangedCallback? onChanged;
@@ -263,6 +278,8 @@ class _DatePickerComponent extends StatefulWidget {
   final LocaleType? locale;
 
   final BasePickerModel pickerModel;
+
+  final Widget Function(DateTime?)? bottomWidgetBuilder;
 
   @override
   State<StatefulWidget> createState() {
@@ -333,6 +350,7 @@ class _DatePickerState extends State<_DatePickerComponent> {
         children: <Widget>[
           _renderTitleActionsView(theme),
           itemView,
+          _renderBottomWidget(),
         ],
       );
     }
@@ -520,6 +538,14 @@ class _DatePickerState extends State<_DatePickerComponent> {
         ],
       ),
     );
+  }
+
+  Widget _renderBottomWidget() {
+    if (widget.bottomWidgetBuilder != null) {
+      return widget.bottomWidgetBuilder!.call(widget.pickerModel.finalTime());
+    }
+
+    return const SizedBox();
   }
 
   String _localeDone() {
